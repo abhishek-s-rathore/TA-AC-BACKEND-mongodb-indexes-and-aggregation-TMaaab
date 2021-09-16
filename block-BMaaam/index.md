@@ -1,4 +1,4 @@
-writeCode
+owriteCode
 
 Insert the data present in users.json into local mongodb database using `mongoimport` into a database called sample and collection named as users.
 
@@ -110,12 +110,20 @@ green -> 330
 > db.users.aggregate([ {$unwind:$tags}, {$group: {_id:'$tags', count: {$sum:1}}} ]).pretty()
 
 23. Group all males whose favoriteFruit is `banana` who have registered before 2015.
+> db.users.aggregate([ {$match: { gender:'male' favouriteFruit: 'banana' }}, {$group: {_id:'$favoriteFruit', count: {$sum:1}}} ]).pretty()
 
 24. Group all females by their favoriteFruit.
 
+> db.users.aggregate([ {$match: { gender:'male'}}, {$group: {_id:'$favoriteFruit', count: {$sum:1}}} ]).pretty()
+
 25. Scan all the document to retrieve all eyeColors(use db.COLLECTION_NAME.distinct);
 
+> db.users.distinct('eyeColor')
+
 26. Find all apple loving blue eyed female working in 'USA'. Sort them by their registration date in descending order.
+
+> db.users.aggregate([{ $match: { gender: 'female', favoriteFruit: 'apple', eyeColor: 'blue' 'company.location.country': 'USA' } },{ $sort: { registered: -1 } },]).pretty();
+
 
 27. Find all 18+ inactive men and return only the fields specified below in the below provided format
 
@@ -130,3 +138,17 @@ green -> 330
   }
 }
 ```
+
+> db.users.aggregate([{$match: {gender: 'male',isActive: 'false', age:{$gt :18} }}, {
+$project: {
+  name: 1,
+  email: '$company:email',
+ identity: {
+
+    eye: '$eyeColor',
+    phone: '$company.phone',
+    location: '$company.location'
+
+}
+}
+}]).pretty()
